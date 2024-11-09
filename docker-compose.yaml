@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    command:
+      - -c
+      - log_connections=true
+      - -c
+      - log_disconnections=true
+    ports:
+      - 5432:5432

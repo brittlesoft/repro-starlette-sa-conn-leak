@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "starlette-sa-conn-leak"
+version = "0.1.0"
+description = ""
+authors = ["Jean Raby <jean@raby.sh>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+starlette = "^0.41.2"
+sqlalchemy = "^2.0.36"
+uvicorn = "^0.32.0"
+asyncpg = "^0.30.0"
+watchfiles = "^0.24.0"
+httpx = "^0.27.2"
+black = "^24.10.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
