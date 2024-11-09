@@ -1,5 +1,7 @@
 # repro-starlette-sa-conn-leak
 
+Reproduction code for a sql connection leak that happens when the task handling the http request is cancelled with `task.cancel()`, but only if a `BaseHTTPMiddleware` is present in the middleware stack.
+
 Requirements:
 - docker
 - poetry
