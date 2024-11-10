@@ -11,11 +11,11 @@ async def main():
 
     while True:
         tasks = []
-        for i in range(200):
+        for i in range(1):
             tasks.append(asyncio.create_task(get("http://localhost:8000/", i)))
 
         await asyncio.gather(*tasks)
-        await asyncio.sleep(2)
+        #await asyncio.sleep(2)
 
 
 if __name__ == "__main__":
