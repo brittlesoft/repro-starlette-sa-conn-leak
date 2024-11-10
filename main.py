@@ -9,8 +9,9 @@ from sqlalchemy.sql import text
 import asyncio
 
 SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost/postgres"
+SQLALCHEMY_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@172.18.0.2/postgres"
 
-engine = create_async_engine(SQLALCHEMY_DATABASE_URL, pool_size=5, max_overflow=0)
+engine = create_async_engine(SQLALCHEMY_DATABASE_URL, pool_size=1, max_overflow=0, echo_pool="debug")
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
@@ -56,7 +57,13 @@ class TimeoutMiddleware:
 
 async def homepage(request):
     async with async_session() as session, session.begin():
-        res = await session.execute(text("select pg_sleep(0.2)"))
+        #res = await session.execute(text("select pg_sleep(0.2)"))
+
+        c = await session.connection()
+        raw = await c.get_raw_connection()
+        print("in http handler:",raw.driver_connection._transport._sock)
+        res = await session.execute(text("select 1"))
+        await asyncio.sleep(0.6)
         return JSONResponse({"hello": [str(row) for row in res]})
 
 
