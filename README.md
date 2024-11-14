@@ -1,6 +1,18 @@
-# repro-starlette-sa-conn-leak
+# SA / asyncpg sql connection leaks reproducers
 
-Reproduction code for a sql connection leak that happens when the task handling the http request is cancelled with `task.cancel()`, but only if a `BaseHTTPMiddleware` is present in the middleware stack.
+Reproduction code for 2 sql connection leaks that happen when cancelling tasks holding sql sessions.
+
+1. When an anyio taskgroup is cancelled while a task in the group holds an open transaction, the
+   underlying connection is leaked.
+   Reproduce with `sa_anyio_test.py`.
+   (see https://github.com/sqlalchemy/sqlalchemy/pull/12076 for discussion)
+2. When using asyncpg + `direct_tls=true` to connect to postgres, cancelling a task (asyncio) that
+   holds a transaction + a row lock, the underlying connection can leak.
+   Reproduce with `direct_tls_leak.py`.
+
+   I used nginx to terminate the tls connection, this is similar to what "google cloudsql connector"
+   does, which is where we first observed the issue "in the wild".
+
 
 Requirements:
 - docker
@@ -10,6 +22,7 @@ Requirements:
 
 first, install deps:
 ```
+# possibly install python 3.12 with pyenv
 poetry install
 ```
 
@@ -17,19 +30,17 @@ Then, possibly in a terminal multiplexer, run the following:
 
 ```
 # postgres
-docker compose up db
+docker compose up
 
 # postgres conn watcher
 bash watch_pg.sh
 
-# server
-make run
+# first leak
+poetry run python sa_anyio_test.py
 
-# client
-poetry run python client.py
+# second leak
+poetry run python direct_tls_leak.py
 ```
 
-The number of connections shown in the watch_pg pane should never go above 6 (pool size + 1 for watcher).
-
-When running with the `PassMiddleware` enabled, the number of connection goes up.
-When it isn't present in the middleware stack, the connections are closed as expected.
+The number of connections shown in the watch_pg pane will steadily increase, but it should never go
+above pool size + watcher connection.

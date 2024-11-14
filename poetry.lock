@@ -619,4 +619,4 @@ anyio = ">=3.0.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "72a853caa7bbcb8499f91f0f882ca12e5a74d17ba818c3f831f3e21b57a729e7"
+content-hash = "ab9f8a1b5570efccd3c4be8b1f9031232aa59638d4ebc369d1d880f51e81600e"
