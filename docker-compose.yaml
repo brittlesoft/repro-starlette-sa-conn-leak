@@ -9,6 +9,8 @@ services:
       - log_connections=true
       - -c
       - log_disconnections=true
+      - -c
+      - client_connection_check_interval=500
     ports:
       - 5432:5432
   nginx:
