@@ -8,7 +8,7 @@ Reproduction code for 2 sql connection leaks that happen when cancelling tasks h
    (see https://github.com/sqlalchemy/sqlalchemy/pull/12076 for discussion)
 2. When using asyncpg + `direct_tls=true` to connect to postgres, cancelling a task (asyncio) that
    holds a transaction + a row lock, the underlying connection can leak.
-   Reproduce with `direct_tls_leak.py`.
+   Reproduce with `direct_tls_leak.py` or `direct_tls_leak_asyncpg.py`.
 
    I used nginx to terminate the tls connection, this is similar to what "google cloudsql connector"
    does, which is where we first observed the issue "in the wild".
@@ -44,3 +44,11 @@ poetry run python direct_tls_leak.py
 
 The number of connections shown in the watch_pg pane will steadily increase, but it should never go
 above pool size + watcher connection.
+
+# direct_tls_leak_asyncpg.py
+
+A refined reproducer of the second leak can be found in `direct_tls_leak_asyncpg.py`, where asyncpg
+tasks are cancelled while waiting for pg. This leads to `conn.close()` throwing `unexpected
+connection_lost() call` and leaving the connection open.
+After this exception, calling `conn.terminate()` does not close the connection either.
+
